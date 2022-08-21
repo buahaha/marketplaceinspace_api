@@ -1,0 +1,13 @@
+[package]
+name = "exante_api"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+jwt = "0.16.0"
+hmac = "0.12.1"
+sha2 = "0.10.2"
+rocket = { git = "https://github.com/SergioBenitez/Rocket", rev = "4dcd928", features = ["json"] }
+# serde = { version = "1.0", features = ["derive"] }
