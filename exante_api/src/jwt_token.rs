@@ -17,7 +17,7 @@ pub fn ext_jwt() -> String {
     let iat: i32;
     match SystemTime::now().duration_since(UNIX_EPOCH) {
         Ok(n) => {
-            println!("1970-01-01 00:00:00 UTC was {} seconds ago!", n.as_secs());
+            // println!("1970-01-01 00:00:00 UTC was {} seconds ago!", n.as_secs());
             iat = n.as_secs() as i32;
         }
         Err(_) => panic!("SystemTime before UNIX EPOCH!"),
@@ -53,7 +53,7 @@ pub fn ext_jwt() -> String {
     token_str
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 #[serde(rename_all = "camelCase")]
 pub struct Tokenization {
@@ -64,7 +64,7 @@ pub struct Tokenization {
     pub aud: Vec<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[serde(crate = "rocket::serde")]
 pub struct AssetInfo {
@@ -85,7 +85,7 @@ pub struct AssetInfo {
     pub group: Value,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[serde(crate = "rocket::serde")]
 pub struct Identifiers {
@@ -101,9 +101,19 @@ pub struct Identifiers {
 
 #[cfg(test)]
 mod tests {
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
+    use rocket::tokio;
+    extern crate dotenv;
+    use dotenv::dotenv;
+    use super::*;
+
+    #[tokio::test]
+    async fn jwt_token() {
+        dotenv().ok();
+        let jwt = ext_jwt();
+        let asset = "AAPL.NASDAQ";
+        let url = format!("{}{}?token={}", "https://api-demo.exante.eu/md/3.0/symbols/", asset, jwt);
+        let response = reqwest::get(url).await;
+        let response_body = response.unwrap();
+        assert_eq!(response_body.status(), 200);
     }
 }
